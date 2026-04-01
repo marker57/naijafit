@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NaijaFit — Nigerian Calorie Tracker</title>
+<link href="https://fonts.googleapis.com/css2?family=Clash+Display:wght@600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --navy:#080D1A;--navy2:#0D1526;--navy3:#111D33;
+  --card:#131C30;--card2:#182140;--card3:#1E2A4A;
+  --bd:rgba(255,255,255,.07);--bd2:rgba(255,255,255,.12);
+  --green:#00D68F;--green2:#00F0A0;--gdim:rgba(0,214,143,.12);
+  --amber:#FFB547;--adim:rgba(255,181,71,.12);
+  --red:#FF4D6A;--rdim:rgba(255,77,106,.12);
+  --tx:#E8F0FF;--mu:#7A8BAD;--mu2:#4A5878;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--navy);color:var(--tx);min-height:100vh;overflow-x:hidden}
+body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse 60% 50% at 20% 0%,rgba(0,214,143,.06) 0%,transparent 60%),radial-gradient(ellipse 40% 40% at 80% 80%,rgba(0,100,255,.05) 0%,transparent 60%);pointer-events:none;z-index:0}
+/* ONBOARD */
+#ob{position:fixed;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center;background:var(--navy);overflow:hidden}
+.ob-mesh{position:absolute;inset:0;background:radial-gradient(ellipse 70% 60% at 50% 110%,rgba(0,214,143,.12) 0%,transparent 70%),radial-gradient(ellipse 50% 40% at 10% 20%,rgba(0,100,255,.07) 0%,transparent 60%)}
+.ob-grid{position:absolute;inset:0;opacity:.03;background-image:linear-gradient(rgba(255,255,255,.8) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.8) 1px,transparent 1px);background-size:44px 44px}
+.ob-w{position:relative;z-index:2;width:min(480px,92vw)}
+.ob-s{display:none;animation:sup .45s cubic-bezier(.22,1,.36,1) both}
+.ob-s.a{display:block}
+@keyframes sup{from{opacity:0;transform:translateY(30px)}to{opacity:1;transform:none}}
+.ob-logo{font-family:'Clash Display',serif;font-size:18px;font-weight:700;color:var(--green);margin-bottom:2.5rem;letter-spacing:.02em}
+.ob-logo span{color:var(--mu)}
+.ob-dots{display:flex;gap:6px;margin-bottom:2rem}
+.ob-dot{width:7px;height:7px;border-radius:50%;background:var(--card3);transition:all .3s}
+.ob-dot.a{width:24px;border-radius:4px;background:var(--green)}
+.ob-ico{width:64px;height:64px;border-radius:18px;background:var(--gdim);border:1px solid rgba(0,214,143,.25);display:flex;align-items:center;justify-content:center;font-size:30px;margin-bottom:1.5rem}
+.ob-title{font-family:'Clash Display',serif;font-size:clamp(1.8rem,5vw,2.4rem);font-weight:700;line-height:1.1;margin-bottom:.7rem}
+.ob-title .hi{color:var(--green)}
+.ob-sub{font-size:14px;color:var(--mu);line-height:1.7;margin-bottom:1.8rem}
+.ob-2col{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.f{display:flex;flex-direction:column;gap:5px;margin-bottom:11px}
+.f label{font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--mu)}
+.f input,.f select{width:100%;height:50px;background:var(--card2);border:1.5px solid var(--bd);border-radius:14px;color:var(--tx);font-family:'Plus Jakarta Sans',sans-serif;font-size:15px;padding:0 14px;transition:border-color .2s,box-shadow .2s;-webkit-appearance:auto;appearance:auto}
+.f input:focus,.f select:focus{outline:none;border-color:var(--green);box-shadow:0 0 0 3px rgba(0,214,143,.15)}
+.f input::placeholder{color:var(--mu2)}
+.ob-btn{width:100%;height:54px;background:var(--green);color:var(--navy);border:none;border-radius:14px;font-family:'Plus Jakarta Sans',sans-serif;font-size:15px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;margin-top:6px;transition:all .2s}
+.ob-btn:hover{background:var(--green2);transform:translateY(-2px);box-shadow:0 10px 30px rgba(0,214,143,.35)}
+.ob-btn:active{transform:translateY(0)}
+.ob-skip{display:block;text-align:center;margin-top:12px;font-size:13px;color:var(--mu);cursor:pointer}
+.ob-skip:hover{color:var(--tx)}
+/* MODAL */
+#gmod{display:none;position:fixed;inset:0;z-index:5000;background:rgba(0,0,0,.75);align-items:center;justify-content:center;backdrop-filter:blur(8px)}
+#gmod.open{display:flex}
+.modal{background:var(--card);border:1px solid var(--bd2);border-radius:24px;padding:2rem;width:min(460px,92vw);animation:sup .3s ease both;max-height:92vh;overflow-y:auto}
+.modal-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:1.5rem}
+.modal-title{font-family:'Clash Display',serif;font-size:20px;font-weight:700}
+.xbtn{width:32px;height:32px;border-radius:8px;background:var(--card3);border:none;color:var(--mu);font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s}
+.xbtn:hover{background:var(--card2);color:var(--tx)}
+/* APP */
+#app{display:none;min-height:100vh;position:relative;z-index:1}
+#app.v{display:block}
+/* NAV */
+.nav{position:sticky;top:0;z-index:100;background:rgba(8,13,26,.92);backdrop-filter:blur(20px);border-bottom:1px solid var(--bd)}
+.nav-i{max-width:1120px;margin:0 auto;height:64px;padding:0 1.5rem;display:flex;align-items:center;justify-content:space-between;gap:1rem}
+.logo{font-family:'Clash Display',serif;font-size:21px;font-weight:700;color:var(--tx);display:flex;align-items:center;gap:8px}
+.logo-dot{width:8px;height:8px;border-radius:50%;background:var(--green);box-shadow:0 0 10px var(--green);animation:blink 2s infinite}
+@keyframes blink{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(1.4)}}
+.nav-r{display:flex;align-items:center;gap:10px}
+.g-chip{background:var(--card2);border:1px solid var(--bd);border-radius:40px;padding:6px 14px;font-size:13px;color:var(--mu)}
+.g-chip strong{color:var(--tx)}
+.goal-btn{height:36px;padding:0 16px;background:var(--gdim);border:1.5px solid rgba(0,214,143,.3);border-radius:40px;color:var(--green);font-family:'Plus Jakarta Sans',sans-serif;font-size:13px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:6px;transition:all .2s}
+.goal-btn:hover{background:rgba(0,214,143,.22);border-color:var(--green);box-shadow:0 0 16px rgba(0,214,143,.2)}
+/* MAIN */
+.main{max-width:1120px;margin:0 auto;padding:1.75rem 1.5rem 5rem}
+/* WELCOME */
+.wb{position:relative;overflow:hidden;background:linear-gradient(135deg,#0A3D2E 0%,#0D4F3A 40%,#072A20 100%);border:1px solid rgba(0,214,143,.18);border-radius:24px;padding:2.25rem 2.5rem;margin-bottom:1.75rem}
+.wb-shine{position:absolute;top:-50px;right:-50px;width:280px;height:280px;border-radius:50%;background:radial-gradient(circle,rgba(0,214,143,.15) 0%,transparent 70%);pointer-events:none}
+.wb-emoji{position:absolute;right:1rem;bottom:-15px;font-size:110px;opacity:.08;line-height:1;pointer-events:none;user-select:none}
+.wb-tag{display:inline-flex;align-items:center;gap:6px;background:rgba(0,214,143,.12);border:1px solid rgba(0,214,143,.25);color:var(--green);font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;padding:4px 12px;border-radius:40px;margin-bottom:10px}
+.wb-name{font-family:'Clash Display',serif;font-size:clamp(1.6rem,3.5vw,2.2rem);font-weight:700;color:#fff;line-height:1.2;margin-bottom:.5rem}
+.wb-sub{font-size:14px;color:rgba(255,255,255,.75);line-height:1.6;max-width:480px}
+.wb-date{margin-top:1rem;font-size:12px;color:rgba(255,255,255,.45);display:flex;align-items:center;gap:6px}
+.wb-date::before{content:'';width:5px;height:5px;border-radius:50%;background:var(--green);box-shadow:0 0 6px var(--green);flex-shrink:0}
+/* STATS */
+.sr{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:1.75rem}
+.sc{background:var(--card);border:1px solid var(--bd);border-radius:20px;padding:1.25rem 1rem;text-align:center;transition:border-color .25s,transform .25s,box-shadow .25s;cursor:default}
+.sc:hover{border-color:rgba(0,214,143,.3);transform:translateY(-3px);box-shadow:0 8px 30px rgba(0,214,143,.08)}
+.sv{font-family:'Clash Display',serif;font-size:30px;font-weight:700;color:var(--green);line-height:1}
+.sv.am{color:var(--amber)}
+.sv.re{color:var(--red)}
+.sl{font-size:11px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;color:var(--mu);margin-top:6px}
+/* GRID */
+.grid{display:grid;grid-template-columns:1fr 370px;gap:1.5rem;align-items:start}
+@media(max-width:860px){.grid{grid-template-columns:1fr}}
+/* CARD */
+.card{background:var(--card);border:1px solid var(--bd);border-radius:24px;padding:1.6rem}
+.ch{font-size:11px;font-weight:700;letter-spacing:.11em;text-transform:uppercase;color:var(--mu);margin-bottom:1.1rem;display:flex;align-items:center;gap:8px}
+.ch::before{content:'';width:20px;height:2.5px;background:linear-gradient(90deg,var(--green),var(--green2));border-radius:2px;flex-shrink:0}
+/* RING */
+.rcard{text-align:center;margin-bottom:1.5rem}
+.rw{position:relative;width:210px;height:210px;margin:0 auto 1.5rem}
+.rs{width:210px;height:210px;transform:rotate(-90deg)}
+.rt{fill:none;stroke:rgba(255,255,255,.05);stroke-width:14}
+.rf{fill:none;stroke:url(#rg);stroke-width:14;stroke-linecap:round;stroke-dasharray:597;stroke-dashoffset:597;transition:stroke-dashoffset 1s cubic-bezier(.34,1.56,.64,1);filter:drop-shadow(0 0 8px rgba(0,214,143,.5))}
+.rf.ov{stroke:var(--red);filter:drop-shadow(0 0 8px rgba(255,77,106,.5))}
+.rc{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.rn{font-family:'Clash Display',serif;font-size:42px;font-weight:700;color:var(--tx);line-height:1}
+.ru{font-size:11px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--mu);margin-top:4px}
+.rglbl{font-size:13px;color:var(--mu)}
+.rgval{font-size:14px;font-weight:700;color:var(--tx)}
+.pt{background:rgba(255,255,255,.06);border-radius:40px;height:10px;overflow:hidden;margin-bottom:7px}
+.pf{height:100%;border-radius:40px;background:linear-gradient(90deg,var(--green),var(--green2));transition:width .8s cubic-bezier(.34,1.2,.64,1);box-shadow:0 0 12px rgba(0,214,143,.4)}
+.pf.ov{background:linear-gradient(90deg,var(--red),#ff8fa0);box-shadow:0 0 12px rgba(255,77,106,.4)}
+.pl{display:flex;justify-content:space-between;font-size:12px;color:var(--mu)}
+.pills{display:flex;gap:8px;margin-top:1.25rem}
+.pill{flex:1;background:var(--card2);border:1px solid var(--bd);border-radius:14px;padding:10px 8px;text-align:center;transition:border-color .2s}
+.pill:hover{border-color:rgba(0,214,143,.25)}
+.pv{font-size:17px;font-weight:700;color:var(--tx)}
+.pk{font-size:10px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;color:var(--mu);margin-top:2px}
+/* SEARCH */
+.sw{position:relative;margin-bottom:12px}
+.si{width:100%;height:52px;background:var(--card2);border:1.5px solid var(--bd);border-radius:16px;color:var(--tx);font-family:'Plus Jakarta Sans',sans-serif;font-size:15px;padding:0 16px 0 48px;transition:all .2s}
+.si:focus{outline:none;border-color:var(--green);box-shadow:0 0 0 3px rgba(0,214,143,.15);background:var(--card3)}
+.si::placeholder{color:var(--mu2)}
+.sico{position:absolute;left:16px;top:50%;transform:translateY(-50%);font-size:18px;pointer-events:none}
+.sd{display:none;position:absolute;top:calc(100% + 6px);left:0;right:0;background:var(--card);border:1px solid rgba(0,214,143,.2);border-radius:16px;box-shadow:0 20px 60px rgba(0,0,0,.6);z-index:400;max-height:290px;overflow-y:auto}
+.sd.o{display:block}
+.si2{padding:11px 16px;cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--bd);transition:background .15s}
+.si2:last-child{border-bottom:none}
+.si2:hover{background:var(--card2)}
+.sc2{font-size:12px;font-weight:700;color:var(--green);background:var(--gdim);padding:2px 8px;border-radius:20px}
+.lg{display:grid;grid-template-columns:85px 1fr 1fr;gap:8px;margin-bottom:12px}
+.lf{display:flex;flex-direction:column;gap:4px}
+.lf label{font-size:11px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--mu)}
+.lf input,.lf select{height:44px;background:var(--card2);border:1.5px solid var(--bd);border-radius:11px;color:var(--tx);font-family:'Plus Jakarta Sans',sans-serif;font-size:14px;padding:0 11px;width:100%;transition:border-color .2s}
+.lf input:focus,.lf select:focus{outline:none;border-color:var(--green)}
+.ab{width:100%;height:52px;background:linear-gradient(135deg,var(--green) 0%,#00B87A 100%);color:var(--navy);border:none;border-radius:14px;font-family:'Plus Jakarta Sans',sans-serif;font-size:15px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;transition:all .2s;box-shadow:0 4px 20px rgba(0,214,143,.25)}
+.ab:hover{transform:translateY(-2px);box-shadow:0 10px 32px rgba(0,214,143,.4)}
+.ab:active{transform:translateY(0)}
+/* LOG */
+.mlog{margin-top:1.5rem}
+.tg{margin-bottom:1.2rem}
+.th{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.tdot{width:8px;height:8px;border-radius:50%;background:var(--green);flex-shrink:0;box-shadow:0 0 6px var(--green)}
+.tn{font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--mu)}
+.ts{margin-left:auto;font-size:12px;font-weight:700;color:var(--green);background:var(--gdim);padding:2px 10px;border-radius:20px}
+.mi{display:flex;align-items:center;padding:12px 14px;background:var(--card2);border-radius:14px;margin-bottom:6px;gap:12px;animation:mIn .3s ease;border:1px solid transparent;transition:border-color .2s,transform .2s}
+.mi:hover{border-color:rgba(0,214,143,.2);transform:translateX(3px)}
+@keyframes mIn{from{opacity:0;transform:translateX(-14px)}to{opacity:1;transform:none}}
+.mico{width:38px;height:38px;background:var(--card3);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+.min{flex:1;min-width:0}
+.mn{font-size:14px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.mm{font-size:12px;color:var(--mu);margin-top:1px}
+.mc{font-size:14px;font-weight:700;color:var(--green);white-space:nowrap}
+.xm{width:30px;height:30px;background:var(--rdim);border:none;color:var(--red);border-radius:8px;cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:background .15s}
+.xm:hover{background:rgba(255,77,106,.25)}
+.emp{text-align:center;padding:3rem 1rem;color:var(--mu)}
+.emp .bi{font-size:52px;margin-bottom:12px}
+.emp p{font-size:14px;line-height:1.7}
+/* SIDEBAR */
+.side{display:flex;flex-direction:column;gap:1.25rem}
+/* BMI */
+.bnum{font-family:'Clash Display',serif;font-size:56px;font-weight:700;line-height:1}
+.bbadge{display:inline-block;padding:4px 14px;border-radius:40px;font-size:12px;font-weight:700;margin:6px 0 12px}
+.bu{background:rgba(96,165,250,.15);color:#60a5fa}
+.bn{background:var(--gdim);color:var(--green)}
+.bo{background:var(--adim);color:var(--amber)}
+.bb{background:var(--rdim);color:var(--red)}
+.bbar{position:relative;height:10px;border-radius:6px;background:linear-gradient(to right,#3b82f6 0%,#22c55e 22%,#eab308 55%,#ef4444 100%);margin-bottom:5px}
+.bneedle{position:absolute;top:50%;width:3px;height:22px;background:var(--tx);border-radius:3px;transform:translate(-50%,-50%);transition:left .7s cubic-bezier(.34,1.56,.64,1);box-shadow:0 0 0 3px rgba(255,255,255,.15)}
+.blbls{display:flex;justify-content:space-between;font-size:9px;color:var(--mu);margin-bottom:12px}
+.btip{background:var(--card2);border-radius:11px;padding:10px 13px;font-size:12px;color:var(--mu);line-height:1.6;border-left:3px solid var(--green);margin-top:2px}
+.ibwr{display:flex;align-items:center;justify-content:space-between;background:var(--card2);border-radius:11px;padding:11px 13px;margin-top:8px}
+.ibwl{font-size:13px;color:var(--mu)}
+.ibwv{font-size:14px;font-weight:700}
+/* GOALS */
+.gl{display:flex;flex-direction:column;gap:8px}
+.gi{display:flex;align-items:center;justify-content:space-between;background:var(--card2);border-radius:11px;padding:11px 13px}
+.gil{font-size:13px;color:var(--mu)}
+.giv{font-size:14px;font-weight:700;color:var(--green)}
+.nog{text-align:center;padding:1.2rem 1rem;font-size:13px;color:var(--mu);line-height:1.6}
+/* WEEKLY BARS + MOTION */
+.hbs{display:flex;align-items:flex-end;gap:7px;height:100px;margin-bottom:6px;padding:4px 0}
+.bw{flex:1;display:flex;flex-direction:column;align-items:center;height:100%;justify-content:flex-end;gap:4px;cursor:pointer}
+.bi2{width:100%;border-radius:6px 6px 0 0;min-height:6px;position:relative;background:rgba(0,214,143,.13);transition:height .6s cubic-bezier(.34,1.2,.64,1),transform .2s,box-shadow .2s;transform-origin:bottom}
+.bi2.tod{background:linear-gradient(to top,var(--green) 0%,rgba(0,240,160,.7) 100%);box-shadow:0 0 16px rgba(0,214,143,.3)}
+.bw:hover .bi2{transform:scaleY(1.07);background:rgba(0,214,143,.35) !important;box-shadow:0 0 22px rgba(0,214,143,.45) !important}
+.bw.tw:hover .bi2{background:linear-gradient(to top,var(--green2),rgba(0,255,180,.8)) !important;box-shadow:0 0 30px rgba(0,214,143,.55) !important}
+.bv{font-size:9px;color:var(--mu);text-align:center;margin-bottom:2px;height:13px;line-height:13px;transition:color .2s}
+.bw:hover .bv{color:var(--green)}
+.bd2{font-size:10px;color:var(--mu);transition:color .2s}
+.bw:hover .bd2{color:var(--tx)}
+.bw.tw .bd2{color:var(--green);font-weight:700}
+.btt{position:absolute;bottom:calc(100% + 6px);left:50%;transform:translateX(-50%) scale(0);background:var(--card3);border:1px solid var(--bd2);color:var(--tx);font-size:11px;font-weight:700;padding:4px 9px;border-radius:6px;white-space:nowrap;pointer-events:none;transition:transform .15s cubic-bezier(.34,1.56,.64,1);z-index:10}
+.bw:hover .btt{transform:translateX(-50%) scale(1)}
+.hdr{display:flex;justify-content:space-between;font-size:10px;color:var(--mu)}
+/* QUICK */
+.qts{display:flex;flex-wrap:wrap;gap:6px;margin-top:.75rem}
+.qt2{background:var(--card2);border:1px solid var(--bd);border-radius:20px;padding:5px 12px;font-size:12px;color:var(--mu);font-weight:600;cursor:pointer;transition:all .18s}
+.qt2:hover{border-color:var(--green);color:var(--green);background:var(--gdim);transform:translateY(-2px)}
+/* SAVE BANNER */
+.sbanner{position:fixed;bottom:1.5rem;right:1.5rem;background:var(--card);border:1px solid var(--bd2);border-radius:16px;padding:14px 18px;display:flex;align-items:center;gap:12px;box-shadow:0 12px 40px rgba(0,0,0,.5);animation:sbIn .4s cubic-bezier(.34,1.56,.64,1);z-index:1000}
+@keyframes sbIn{from{opacity:0;transform:translateY(20px) scale(.95)}to{opacity:1;transform:none}}
+.sdis{width:26px;height:26px;background:var(--card3);border:none;border-radius:6px;color:var(--mu);cursor:pointer;font-size:13px;display:flex;align-items:center;justify-content:center}
+.si3{font-size:13px;color:var(--mu)}
+.si3 strong{color:var(--green)}
+/* SAVED BADGE */
+.svbadge{display:none;align-items:center;gap:5px;font-size:11px;color:var(--green);font-weight:600;background:var(--gdim);border-radius:20px;padding:3px 10px}
+/* QUOTE */
+.qcard{position:relative;overflow:hidden;background:linear-gradient(135deg,#0A1A0F,#0D2018);border:1px solid rgba(0,214,143,.12);border-radius:24px;padding:2rem;text-align:center;margin-top:1.75rem}
+.qglow{position:absolute;inset:0;background:radial-gradient(ellipse at 50% 100%,rgba(0,214,143,.1) 0%,transparent 65%)}
+.qmark{font-family:'Clash Display',serif;font-size:72px;line-height:.5;color:rgba(0,214,143,.12);margin-bottom:.5rem;display:block;font-weight:700}
+.qt3{font-family:'Clash Display',serif;font-size:clamp(14px,2.2vw,18px);font-weight:600;line-height:1.6;color:var(--tx);margin-bottom:.8rem;position:relative;z-index:1}
+.qa{font-size:12px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--mu);position:relative;z-index:1}
+.qd{font-size:11px;color:rgba(0,214,143,.5);margin-top:4px;position:relative;z-index:1}
+/* FADE IN */
+@keyframes fi{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:none}}
+.fi{animation:fi .5s ease both}
+.d1{animation-delay:.07s}.d2{animation-delay:.13s}.d3{animation-delay:.19s}.d4{animation-delay:.25s}
+@media(max-width:600px){
+  .sr{grid-template-columns:1fr 1fr}
+  .lg{grid-template-columns:1fr 1fr}
+  .lg .lf:first-child{grid-column:1/-1}
+  .ob-2col{grid-template-columns:1fr}
+  .nav-i{padding:0 1rem}
+  .main{padding:1.25rem 1rem 4rem}
+}
+</style>
+</head>
+<body>
+<div id="ob">
+  <div class="ob-mesh"></div>
+  <div class="ob-grid"></div>
+  <div class="ob-w">
+    <div class="ob-logo">Naija<span>Fit</span> 🇳🇬</div>
+    <div class="ob-dots">
+      <div class="ob-dot a" id="d0"></div>
+      <div class="ob-dot" id="d1"></div>
+      <div class="ob-dot" id="d2"></div>
+    </div>
+    <div class="ob-s a" id="s0">
+      <div class="ob-ico">👋</div>
+      <h1 class="ob-title"><span class="hi">Welcome!</span><br>What's your name?</h1>
+      <p class="ob-sub">Personalise your NaijaFit experience. We'll use this to greet you every day you come back.</p>
+      <div class="f"><label>Your first name</label><input type="text" id="obn" placeholder="e.g. Chidi, Amaka, Tunde…" maxlength="24"></div>
+      <button class="ob-btn" onclick="on0()">Continue →</button>
+    </div>
+    <div class="ob-s" id="s1">
+      <div class="ob-ico">📏</div>
+      <h1 class="ob-title">Your body info</h1>
+      <p class="ob-sub">Used to calculate your BMI accurately. Everything stays on your device — nothing is sent anywhere.</p>
+      <div class="ob-2col">
+        <div class="f"><label>Weight (kg)</label><input type="number" id="obw" placeholder="72" min="20" max="300" step="0.1"></div>
+        <div class="f"><label>Height (cm)</label><input type="number" id="obh" placeholder="170" min="100" max="250"></div>
+        <div class="f"><label>Age</label><input type="number" id="oba" placeholder="28" min="10" max="100"></div>
+        <div class="f"><label>Sex</label><select id="obs"><option value="male">Male</option><option value="female">Female</option></select></div>
+      </div>
+      <button class="ob-btn" onclick="on1()">Continue →</button>
+      <span class="ob-skip" onclick="on1()">Skip for now</span>
+    </div>
+    <div class="ob-s" id="s2">
+      <div class="ob-ico">🎯</div>
+      <h1 class="ob-title">Set your goals</h1>
+      <p class="ob-sub">Tell NaijaFit what you're working towards. Update anytime via the Goals button.</p>
+      <div class="f"><label>Daily calorie target (kcal)</label><input type="number" id="obcg" placeholder="e.g. 2000" min="500" max="6000"></div>
+      <div class="f"><label>Target weight (kg)</label><input type="number" id="obwg" placeholder="e.g. 68" min="20" max="300" step="0.1"></div>
+      <div class="f"><label>Activity level</label>
+        <select id="obact">
+          <option value="1.2">Sedentary (little or no exercise)</option>
+          <option value="1.375">Lightly active (1–3 days/wk)</option>
+          <option value="1.55" selected>Moderately active (3–5 days/wk)</option>
+          <option value="1.725">Very active (6–7 days/wk)</option>
+          <option value="1.9">Athlete / gym daily</option>
+        </select>
+      </div>
+      <button class="ob-btn" onclick="obf()">Start Tracking 🚀</button>
+      <span class="ob-skip" onclick="obf()">Skip, set goals later</span>
+    </div>
+  </div>
+</div>
+
+<div id="gmod">
+  <div class="modal">
+    <div class="modal-head">
+      <div class="modal-title">⚙️ Goals &amp; Profile</div>
+      <button class="xbtn" onclick="cmod()">✕</button>
+    </div>
+    <div class="f"><label>Daily calorie target (kcal)</label><input type="number" id="mcg" placeholder="e.g. 2000"></div>
+    <div class="f"><label>Target weight (kg)</label><input type="number" id="mwg" placeholder="e.g. 68" step="0.1"></div>
+    <div class="ob-2col">
+      <div class="f"><label>Current weight (kg)</label><input type="number" id="mw" placeholder="72" step="0.1"></div>
+      <div class="f"><label>Height (cm)</label><input type="number" id="mh" placeholder="170"></div>
+    </div>
+    <div class="ob-2col">
+      <div class="f"><label>Age</label><input type="number" id="ma" placeholder="28"></div>
+      <div class="f"><label>Sex</label><select id="ms"><option value="male">Male</option><option value="female">Female</option></select></div>
+    </div>
+    <div class="f"><label>Activity level</label>
+      <select id="mact"><option value="1.2">Sedentary</option><option value="1.375">Lightly active</option><option value="1.55" selected>Moderately active</option><option value="1.725">Very active</option><option value="1.9">Extremely active</option></select>
+    </div>
+    <button class="ob-btn" onclick="sg()">Save Goals ✓</button>
+    <button class="ob-btn" onclick="clearD()" style="margin-top:8px;background:var(--rdim);color:var(--red);box-shadow:none">🗑️ Clear All My Data</button>
+  </div>
+</div>
+
+<div id="app">
+  <nav class="nav">
+    <div class="nav-i">
+      <div class="logo">NaijaFit <div class="logo-dot"></div></div>
+      <div class="nav-r">
+        <div class="g-chip">Hey, <strong id="tname">—</strong> 👋</div>
+        <button class="goal-btn" onclick="omod()">🎯 Goals</button>
+      </div>
+    </div>
+  </nav>
+  <div class="main">
+    <div class="wb fi">
+      <div class="wb-shine"></div>
+      <div class="wb-emoji">🍛</div>
+      <div class="wb-tag">🇳🇬 Made for Nigeria</div>
+      <h1 class="wb-name" id="wname">Welcome back!</h1>
+      <p class="wb-sub" id="wsub">Let's own your health today, one meal at a time.</p>
+      <div class="wb-date" id="wdate">—</div>
+    </div>
+    <div class="sr fi d1">
+      <div class="sc"><div class="sv" id="s1">0</div><div class="sl">kcal today</div></div>
+      <div class="sc"><div class="sv am" id="s2">0</div><div class="sl">meals logged</div></div>
+      <div class="sc"><div class="sv" id="s3" style="color:var(--green)">—</div><div class="sl">kcal remaining</div></div>
+    </div>
+    <div class="grid">
+      <div>
+        <div class="card rcard fi d2">
+          <div class="rw">
+            <svg class="rs" viewBox="0 0 210 210">
+              <defs><linearGradient id="rg" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#00D68F"/><stop offset="100%" stop-color="#00F0A0"/></linearGradient></defs>
+              <circle class="rt" cx="105" cy="105" r="95"/>
+              <circle class="rf" id="ring" cx="105" cy="105" r="95"/>
+            </svg>
+            <div class="rc"><div class="rn" id="rnum">0</div><div class="ru">kcal eaten</div></div>
+          </div>
+          <div style="display:flex;align-items:center;justify-content:center;gap:6px;margin-bottom:1rem">
+            <span class="rglbl">Daily goal:</span>
+            <span class="rgval" id="gd">Not set — tap Goals ↗</span>
+          </div>
+          <div class="pt"><div class="pf" id="pf" style="width:0%"></div></div>
+          <div class="pl"><span id="pp">0%</span><span id="pr">Set a calorie goal</span></div>
+          <div class="pills">
+            <div class="pill"><div class="pv" id="p1">0</div><div class="pk">eaten</div></div>
+            <div class="pill"><div class="pv" id="p2">—</div><div class="pk">goal</div></div>
+            <div class="pill"><div class="pv" id="p3">—</div><div class="pk">left</div></div>
+          </div>
+        </div>
+        <div class="card fi d3">
+          <div class="ch">🍽️ Log a meal</div>
+          <div class="sw">
+            <span class="sico">🔍</span>
+            <input type="text" class="si" id="fi" placeholder="Search Nigerian food… Eba, Jollof, Suya, Egusi…" autocomplete="off">
+            <div class="sd" id="sdrop"></div>
+          </div>
+          <div class="lg">
+            <div class="lf"><label>Amount</label><input type="number" id="amt" value="1" min="0.1" step="0.1"></div>
+            <div class="lf"><label>Unit</label><select id="unit"><option>cup</option><option>wrap</option><option>plate</option><option>piece</option><option>spoon (tbsp)</option><option>gram (100g)</option><option>pack</option><option>bowl</option><option>skewer</option><option>slice</option></select></div>
+            <div class="lf"><label>Meal time</label><select id="mt"><option>Breakfast</option><option>Morning snack</option><option>Lunch</option><option>Afternoon snack</option><option>Dinner</option><option>Late night</option></select></div>
+          </div>
+          <button class="ab" onclick="addM()">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            Add to Log
+          </button>
+          <div id="mlog" class="mlog"><div class="emp"><div class="bi">🫙</div><p>Your log is empty.<br>Search and add your first Nigerian meal above!</p></div></div>
+        </div>
+      </div>
+      <div class="side">
+        <div class="card fi d2">
+          <div class="ch">⚖️ BMI analysis</div>
+          <div id="bmnone" style="text-align:center;padding:1rem;font-size:13px;color:var(--mu)">Add body info via <strong style="color:var(--green)">Goals</strong> to see your BMI</div>
+          <div id="bmdata" style="display:none">
+            <div class="bnum" id="bnum">—</div>
+            <span class="bbadge" id="bbadge">—</span>
+            <div class="bbar"><div class="bneedle" id="bneedle" style="left:5%"></div></div>
+            <div class="blbls"><span>Underweight</span><span>Normal</span><span>Overweight</span><span>Obese</span></div>
+            <div class="btip" id="btip"></div>
+            <div class="ibwr"><span class="ibwl">Ideal body weight</span><span class="ibwv" id="ibwv">—</span></div>
+          </div>
+        </div>
+        <div class="card fi d3">
+          <div class="ch" style="justify-content:space-between;display:flex;align-items:center">
+            <span style="display:flex;align-items:center;gap:8px"><span style="width:20px;height:2.5px;background:linear-gradient(90deg,var(--green),var(--green2));border-radius:2px;flex-shrink:0;display:inline-block"></span>🎯 My goals</span>
+            <span class="svbadge" id="svbadge">✓ Saved</span>
+          </div>
+          <div id="glist"><div class="nog">No goals set yet.<br>Tap <strong style="color:var(--green)">Goals</strong> above to set them!</div></div>
+        </div>
+        <div class="card fi d4">
+          <div class="ch">📈 Weekly intake</div>
+          <div class="hbs" id="hbs"></div>
+          <div class="hdr" id="hdr"></div>
+        </div>
+        <div class="card fi d4">
+          <div class="ch">⚡ Quick add</div>
+          <div class="qts" id="qtags"></div>
+        </div>
+      </div>
+    </div>
+    <div class="qcard fi d4">
+      <div class="qglow"></div>
+      <span class="qmark">"</span>
+      <p class="qt3" id="qt">Loading today's motivation…</p>
+      <div class="qa" id="qauth">—</div>
+      <div class="qd" id="qday">Today's inspiration</div>
+    </div>
+  </div>
+</div>
+
+<script>
+const DB=[
+  {n:"Jollof rice",e:"🍚",cup:310,wrap:310,plate:620,piece:310,gram:155,"spoon (tbsp)":19,pack:310,bowl:465,skewer:310,slice:155},
+  {n:"Fried rice",e:"🍛",cup:280,wrap:280,plate:560,piece:280,gram:140,"spoon (tbsp)":18,pack:280,bowl:420,skewer:280,slice:140},
+  {n:"White rice (boiled)",e:"🍚",cup:206,wrap:206,plate:412,piece:206,gram:130,"spoon (tbsp)":13,pack:206,bowl:309,skewer:206,slice:103},
+  {n:"Ofada rice with stew",e:"🍚",cup:340,wrap:340,plate:680,piece:340,gram:170,"spoon (tbsp)":21,pack:340,bowl:510,skewer:340,slice:170},
+  {n:"Coconut rice",e:"🥥",cup:300,wrap:270,plate:600,piece:200,gram:155,"spoon (tbsp)":19,pack:300,bowl:450,skewer:200,slice:150},
+  {n:"Rice and beans",e:"🍛",cup:280,wrap:250,plate:560,piece:190,gram:145,"spoon (tbsp)":18,pack:280,bowl:420,skewer:190,slice:140},
+  {n:"Eba (garri swallow)",e:"🫓",cup:330,wrap:280,plate:560,piece:200,gram:160,"spoon (tbsp)":21,pack:330,bowl:495,skewer:200,slice:165},
+  {n:"Pounded yam",e:"🫓",cup:400,wrap:320,plate:720,piece:200,gram:118,"spoon (tbsp)":25,pack:400,bowl:600,skewer:200,slice:200},
+  {n:"Amala",e:"🫓",cup:352,wrap:300,plate:600,piece:200,gram:130,"spoon (tbsp)":22,pack:352,bowl:528,skewer:200,slice:176},
+  {n:"Fufu (cassava)",e:"🫓",cup:330,wrap:280,plate:560,piece:200,gram:164,"spoon (tbsp)":21,pack:330,bowl:495,skewer:200,slice:165},
+  {n:"Semovita",e:"🫓",cup:600,wrap:500,plate:1000,piece:300,gram:360,"spoon (tbsp)":38,pack:600,bowl:900,skewer:300,slice:300},
+  {n:"Tuwo shinkafa",e:"🫓",cup:216,wrap:200,plate:400,piece:150,gram:108,"spoon (tbsp)":14,pack:216,bowl:324,skewer:150,slice:108},
+  {n:"Wheat swallow",e:"🫓",cup:300,wrap:270,plate:600,piece:190,gram:150,"spoon (tbsp)":19,pack:300,bowl:450,skewer:190,slice:150},
+  {n:"Egusi soup",e:"🍲",cup:500,wrap:450,plate:900,piece:300,gram:180,"spoon (tbsp)":31,pack:500,bowl:750,skewer:300,slice:250},
+  {n:"Ogbono soup",e:"🍲",cup:420,wrap:380,plate:760,piece:250,gram:160,"spoon (tbsp)":26,pack:420,bowl:630,skewer:250,slice:210},
+  {n:"Okra soup",e:"🍲",cup:180,wrap:160,plate:360,piece:120,gram:80,"spoon (tbsp)":11,pack:180,bowl:270,skewer:120,slice:90},
+  {n:"Banga soup",e:"🍲",cup:434,wrap:400,plate:800,piece:250,gram:160,"spoon (tbsp)":27,pack:434,bowl:651,skewer:250,slice:217},
+  {n:"Edikaikong soup",e:"🥬",cup:200,wrap:180,plate:400,piece:130,gram:90,"spoon (tbsp)":13,pack:200,bowl:300,skewer:130,slice:100},
+  {n:"Efo riro",e:"🥬",cup:220,wrap:200,plate:440,piece:140,gram:95,"spoon (tbsp)":14,pack:220,bowl:330,skewer:140,slice:110},
+  {n:"Bitterleaf soup",e:"🍲",cup:190,wrap:170,plate:380,piece:120,gram:85,"spoon (tbsp)":12,pack:190,bowl:285,skewer:120,slice:95},
+  {n:"Afang soup",e:"🍲",cup:210,wrap:190,plate:420,piece:130,gram:90,"spoon (tbsp)":13,pack:210,bowl:315,skewer:130,slice:105},
+  {n:"Oha soup",e:"🍲",cup:210,wrap:190,plate:420,piece:135,gram:88,"spoon (tbsp)":13,pack:210,bowl:315,skewer:135,slice:105},
+  {n:"Pepper soup (goat)",e:"🍵",cup:180,wrap:160,plate:320,piece:120,gram:60,"spoon (tbsp)":11,pack:180,bowl:270,skewer:120,slice:90},
+  {n:"Catfish pepper soup",e:"🐟",cup:190,wrap:170,plate:380,piece:130,gram:80,"spoon (tbsp)":12,pack:190,bowl:285,skewer:130,slice:95},
+  {n:"Nigerian tomato stew",e:"🍅",cup:293,wrap:250,plate:500,piece:180,gram:100,"spoon (tbsp)":18,pack:293,bowl:440,skewer:180,slice:146},
+  {n:"Groundnut soup",e:"🥜",cup:380,wrap:340,plate:760,piece:230,gram:150,"spoon (tbsp)":24,pack:380,bowl:570,skewer:230,slice:190},
+  {n:"Ewedu soup",e:"🍃",cup:80,wrap:70,plate:160,piece:50,gram:35,"spoon (tbsp)":5,pack:80,bowl:120,skewer:50,slice:40},
+  {n:"Gbegiri soup",e:"🫘",cup:180,wrap:160,plate:360,piece:120,gram:80,"spoon (tbsp)":11,pack:180,bowl:270,skewer:120,slice:90},
+  {n:"Moi moi",e:"🫘",cup:280,wrap:306,plate:600,piece:306,gram:120,"spoon (tbsp)":18,pack:306,bowl:420,skewer:306,slice:150},
+  {n:"Akara (bean fritters)",e:"🟡",cup:220,wrap:180,plate:440,piece:80,gram:130,"spoon (tbsp)":14,pack:220,bowl:330,skewer:80,slice:110},
+  {n:"Beans porridge",e:"🫘",cup:300,wrap:270,plate:600,piece:200,gram:150,"spoon (tbsp)":19,pack:300,bowl:450,skewer:200,slice:150},
+  {n:"Beans (boiled)",e:"🫘",cup:249,wrap:220,plate:498,piece:180,gram:140,"spoon (tbsp)":16,pack:249,bowl:374,skewer:180,slice:125},
+  {n:"Suya",e:"🍢",cup:250,wrap:220,plate:500,piece:120,gram:200,"spoon (tbsp)":16,pack:250,bowl:375,skewer:120,slice:125},
+  {n:"Kilishi",e:"🥩",cup:300,wrap:280,plate:600,piece:150,gram:350,"spoon (tbsp)":19,pack:300,bowl:450,skewer:100,slice:150},
+  {n:"Grilled chicken",e:"🍗",cup:200,wrap:180,plate:400,piece:170,gram:165,"spoon (tbsp)":13,pack:200,bowl:300,skewer:120,slice:100},
+  {n:"Fried chicken",e:"🍗",cup:260,wrap:240,plate:520,piece:220,gram:190,"spoon (tbsp)":16,pack:260,bowl:390,skewer:150,slice:130},
+  {n:"Beef stew",e:"🥩",cup:280,wrap:250,plate:560,piece:180,gram:150,"spoon (tbsp)":18,pack:280,bowl:420,skewer:150,slice:140},
+  {n:"Goat meat (stewed)",e:"🐐",cup:240,wrap:220,plate:480,piece:170,gram:143,"spoon (tbsp)":15,pack:240,bowl:360,skewer:140,slice:120},
+  {n:"Fried fish (tilapia)",e:"🐟",cup:200,wrap:180,plate:380,piece:160,gram:120,"spoon (tbsp)":13,pack:200,bowl:300,skewer:130,slice:100},
+  {n:"Smoked fish",e:"🐠",cup:250,wrap:220,plate:450,piece:150,gram:200,"spoon (tbsp)":16,pack:250,bowl:375,skewer:120,slice:125},
+  {n:"Boiled yam",e:"🟡",cup:177,wrap:160,plate:354,piece:116,gram:116,"spoon (tbsp)":11,pack:177,bowl:266,skewer:100,slice:88},
+  {n:"Fried yam (dundun)",e:"🟡",cup:300,wrap:280,plate:600,piece:200,gram:180,"spoon (tbsp)":19,pack:300,bowl:450,skewer:150,slice:150},
+  {n:"Yam pottage (asaro)",e:"🥣",cup:300,wrap:280,plate:600,piece:200,gram:150,"spoon (tbsp)":19,pack:300,bowl:450,skewer:150,slice:150},
+  {n:"Fried plantain (dodo)",e:"🍌",cup:220,wrap:200,plate:440,piece:68,gram:150,"spoon (tbsp)":14,pack:220,bowl:330,skewer:100,slice:68},
+  {n:"Roasted plantain (boli)",e:"🍌",cup:218,wrap:200,plate:436,piece:200,gram:122,"spoon (tbsp)":14,pack:218,bowl:327,skewer:150,slice:109},
+  {n:"Plantain chips",e:"🍟",cup:280,wrap:240,plate:560,piece:100,gram:500,"spoon (tbsp)":18,pack:280,bowl:420,skewer:100,slice:140},
+  {n:"Indomie noodles",e:"🍜",cup:200,wrap:180,plate:400,piece:200,gram:143,"spoon (tbsp)":13,pack:342,bowl:300,skewer:200,slice:100},
+  {n:"Agege bread",e:"🍞",cup:250,wrap:220,plate:500,piece:200,gram:280,"spoon (tbsp)":16,pack:250,bowl:375,skewer:200,slice:150},
+  {n:"Puff puff",e:"🍩",cup:280,wrap:250,plate:560,piece:120,gram:280,"spoon (tbsp)":18,pack:280,bowl:420,skewer:120,slice:140},
+  {n:"Chin chin",e:"🟤",cup:400,wrap:360,plate:800,piece:80,gram:450,"spoon (tbsp)":25,pack:400,bowl:600,skewer:80,slice:200},
+  {n:"Meat pie",e:"🥧",cup:280,wrap:260,plate:560,piece:230,gram:220,"spoon (tbsp)":18,pack:280,bowl:420,skewer:230,slice:140},
+  {n:"Boiled egg",e:"🥚",cup:180,wrap:160,plate:360,piece:78,gram:155,"spoon (tbsp)":11,pack:180,bowl:270,skewer:78,slice:90},
+  {n:"Fried egg",e:"🍳",cup:200,wrap:180,plate:400,piece:90,gram:180,"spoon (tbsp)":13,pack:200,bowl:300,skewer:90,slice:100},
+  {n:"Pap (ogi/akamu)",e:"🥣",cup:100,wrap:90,plate:200,piece:80,gram:60,"spoon (tbsp)":6,pack:100,bowl:150,skewer:80,slice:50},
+  {n:"Custard",e:"🥣",cup:140,wrap:120,plate:280,piece:100,gram:95,"spoon (tbsp)":9,pack:140,bowl:210,skewer:100,slice:70},
+  {n:"Groundnuts (peanuts)",e:"🥜",cup:400,wrap:360,plate:800,piece:170,gram:567,"spoon (tbsp)":25,pack:400,bowl:600,skewer:170,slice:200},
+  {n:"Abacha (African salad)",e:"🥗",cup:280,wrap:250,plate:560,piece:180,gram:130,"spoon (tbsp)":18,pack:280,bowl:420,skewer:180,slice:140},
+  {n:"Nkwobi",e:"🥩",cup:320,wrap:290,plate:640,piece:200,gram:150,"spoon (tbsp)":20,pack:320,bowl:480,skewer:200,slice:160},
+  {n:"Roasted corn",e:"🌽",cup:150,wrap:130,plate:300,piece:130,gram:86,"spoon (tbsp)":9,pack:150,bowl:225,skewer:100,slice:75},
+  {n:"Zobo drink",e:"🍹",cup:30,wrap:25,plate:60,piece:20,gram:10,"spoon (tbsp)":2,pack:30,bowl:45,skewer:20,slice:15},
+  {n:"Kunu drink",e:"🥛",cup:100,wrap:90,plate:200,piece:70,gram:35,"spoon (tbsp)":6,pack:100,bowl:150,skewer:70,slice:50},
+  {n:"Chapman drink",e:"🍹",cup:120,wrap:100,plate:240,piece:80,gram:40,"spoon (tbsp)":8,pack:120,bowl:180,skewer:80,slice:60},
+  {n:"Okpa",e:"🟤",cup:220,wrap:250,plate:440,piece:250,gram:130,"spoon (tbsp)":14,pack:220,bowl:330,skewer:250,slice:110},
+  {n:"Fisherman soup",e:"🐠",cup:220,wrap:200,plate:440,piece:150,gram:95,"spoon (tbsp)":14,pack:220,bowl:330,skewer:150,slice:110},
+  {n:"Garden egg sauce",e:"🍆",cup:130,wrap:120,plate:260,piece:80,gram:60,"spoon (tbsp)":8,pack:130,bowl:195,skewer:80,slice:65},
+  {n:"Samosa",e:"🔺",cup:280,wrap:260,plate:560,piece:80,gram:220,"spoon (tbsp)":18,pack:280,bowl:420,skewer:80,slice:140},
+  {n:"Croaker fish (fried)",e:"🐟",cup:220,wrap:200,plate:440,piece:180,gram:150,"spoon (tbsp)":14,pack:220,bowl:330,skewer:150,slice:110},
+];
+const QF=["Jollof rice","Eba (garri swallow)","Suya","Moi moi","Akara (bean fritters)","Fried plantain (dodo)","Puff puff","Boiled egg","Groundnuts (peanuts)","Zobo drink"];
+const QQ=[
+  {t:"You don't have to eat less — you just have to eat right. Nigerian food can be your medicine.",a:"NaijaFit Wisdom"},
+  {t:"Every great body starts with a single meal tracked. Start today.",a:"Fitness Proverb"},
+  {t:"Slow and steady wins the race — just like a good pot of egusi on low heat.",a:"Nigerian Saying"},
+  {t:"Your health is your greatest wealth. Invest in it every single day.",a:"African Proverb"},
+  {t:"Don't wish for a good body — work for it. One healthy choice at a time.",a:"NaijaFit"},
+  {t:"The best time to start was yesterday. The second best time is right now.",a:"Fitness Coach"},
+  {t:"Discipline is choosing between what you want now and what you want most.",a:"Abraham Lincoln"},
+  {t:"Take care of your body. It's the only place you have to live.",a:"Jim Rohn"},
+  {t:"Your body keeps the score — make sure you're winning.",a:"NaijaFit Wisdom"},
+  {t:"Small steps every day add up to big results. Track, adjust, and grow.",a:"Health Coach"},
+  {t:"When you feel like quitting, think about why you started.",a:"Unknown"},
+  {t:"Fitness is not about being better than someone else — it's about being better than you used to be.",a:"Khloe Kardashian"},
+  {t:"Eat food. Not too much. Mostly plants — and maybe a little suya on the weekend.",a:"NaijaFit"},
+  {t:"Your strongest muscle is your will. Feed it well.",a:"NaijaFit Wisdom"},
+  {t:"Success is the sum of small efforts repeated day in and day out.",a:"Robert Collier"},
+  {t:"Energy and persistence conquer all things.",a:"Benjamin Franklin"},
+  {t:"Health is not a destination but a manner of travelling.",a:"Adelle Davis"},
+  {t:"The journey of a thousand miles begins with one step — or one less plate of eba.",a:"Nigerian Health Proverb"},
+  {t:"What you eat in private you wear in public. Track everything.",a:"NaijaFit"},
+  {t:"Strive for progress, not perfection.",a:"Unknown"},
+  {t:"Every morning is a new opportunity to make better choices for your body.",a:"NaijaFit Wisdom"},
+  {t:"Consistency beats intensity. Show up every day.",a:"Fitness Proverb"},
+  {t:"The best project you'll ever work on is yourself.",a:"Unknown"},
+  {t:"Naija people are resilient. Apply that same spirit to your health journey.",a:"NaijaFit"},
+  {t:"Don't count the days — make the days count.",a:"Muhammad Ali"},
+  {t:"Eat well, move often, and never stop believing in your goals.",a:"NaijaFit"},
+  {t:"Your future body is created by what you choose to do today.",a:"Fitness Coach"},
+  {t:"Strong is the new healthy — and healthy starts in the kitchen.",a:"NaijaFit Wisdom"},
+  {t:"A healthy outside starts from the inside.",a:"Robert Urich"},
+  {t:"He who has health has hope; and he who has hope has everything.",a:"Arabian Proverb"},
+];
+const KEY='naijafit_v3';
+let S={name:'',weight:null,height:null,age:null,sex:'male',activity:1.55,calGoal:null,weightGoal:null};
+let meals=[];let sf=null;
+const CIRC=597;
+function save(){try{localStorage.setItem(KEY,JSON.stringify({S,meals,date:new Date().toDateString()}));}catch(e){}}
+function load(){try{const r=localStorage.getItem(KEY);if(!r)return null;const d=JSON.parse(r);if(d.date!==new Date().toDateString())d.meals=[];return d;}catch(e){return null;}}
+function clearD(){if(!confirm('Erase all data including profile, goals and meals? This cannot be undone.'))return;localStorage.removeItem(KEY);localStorage.removeItem('nf_week');location.reload();}
+function on0(){const n=document.getElementById('obn').value.trim();if(!n){document.getElementById('obn').focus();return;}S.name=n;step(0,1);}
+function on1(){S.weight=+document.getElementById('obw').value||null;S.height=+document.getElementById('obh').value||null;S.age=+document.getElementById('oba').value||null;S.sex=document.getElementById('obs').value;step(1,2);}
+function step(f,t){document.getElementById('s'+f).classList.remove('a');document.getElementById('d'+f).classList.remove('a');document.getElementById('s'+t).classList.add('a');document.getElementById('d'+t).classList.add('a');}
+function obf(){S.calGoal=+document.getElementById('obcg').value||null;S.weightGoal=+document.getElementById('obwg').value||null;S.activity=+document.getElementById('obact').value||1.55;save();launch();}
+function launch(){document.getElementById('ob').style.display='none';document.getElementById('app').classList.add('v');init();}
+function init(){
+  const now=new Date();const h=now.getHours();
+  const g=h<12?'Good morning':h<17?'Good afternoon':'Good evening';
+  const ms=["You're doing amazing. Keep tracking and own your health today.","Every meal you log is a step closer to your goal. Let's go!","Consistency is key. Your future self will thank you.","Today is a great day to make healthy choices. You've got this!"];
+  document.getElementById('tname').textContent=S.name||'Champion';
+  document.getElementById('wname').textContent=g+', '+(S.name||'Champion')+'! 🎉';
+  document.getElementById('wsub').textContent=ms[now.getDate()%ms.length];
+  document.getElementById('wdate').textContent=now.toLocaleDateString('en-NG',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+  const mtEl=document.getElementById('mt');
+  if(h<10)mtEl.value='Breakfast';else if(h<12)mtEl.value='Morning snack';else if(h<15)mtEl.value='Lunch';else if(h<18)mtEl.value='Afternoon snack';else if(h<21)mtEl.value='Dinner';else mtEl.value='Late night';
+  rQT();rGD();rBMI();rAll();rQ();
+  if(S.calGoal||S.weightGoal||S.weight)document.getElementById('svbadge').style.display='inline-flex';
+}
+function rQ(){const now=new Date();const i=(now.getDate()+now.getMonth()*3)%QQ.length;document.getElementById('qt').textContent=QQ[i].t;document.getElementById('qauth').textContent='— '+QQ[i].a;document.getElementById('qday').textContent=now.toLocaleDateString('en-NG',{weekday:'long',day:'numeric',month:'long'});}
+function omod(){document.getElementById('mcg').value=S.calGoal||'';document.getElementById('mwg').value=S.weightGoal||'';document.getElementById('mw').value=S.weight||'';document.getElementById('mh').value=S.height||'';document.getElementById('ma').value=S.age||'';document.getElementById('ms').value=S.sex;document.getElementById('mact').value=S.activity;document.getElementById('gmod').classList.add('open');}
+function cmod(){document.getElementById('gmod').classList.remove('open');}
+function sg(){S.calGoal=+document.getElementById('mcg').value||null;S.weightGoal=+document.getElementById('mwg').value||null;S.weight=+document.getElementById('mw').value||null;S.height=+document.getElementById('mh').value||null;S.age=+document.getElementById('ma').value||null;S.sex=document.getElementById('ms').value;S.activity=+document.getElementById('mact').value||1.55;cmod();save();document.getElementById('svbadge').style.display='inline-flex';rGD();rBMI();rRing();rStats();showBanner();}
+function showBanner(){const e=document.getElementById('sb');if(e)e.remove();const b=document.createElement('div');b.id='sb';b.className='sbanner';b.innerHTML='<div class="si3">✅ <strong>Goals saved!</strong> Stored on this device.</div><button class="sdis" onclick="this.parentElement.remove()">✕</button>';document.body.appendChild(b);setTimeout(()=>{if(b.parentElement)b.remove();},4000);}
+function rGD(){const el=document.getElementById('glist');if(!S.calGoal&&!S.weightGoal){el.innerHTML='<div class="nog">No goals set yet.<br>Tap <strong style="color:var(--green)">Goals</strong> above!</div>';return;}let h='<div class="gl">';if(S.calGoal)h+=`<div class="gi"><span class="gil">🔥 Daily calorie target</span><span class="giv">${S.calGoal.toLocaleString()} kcal</span></div>`;if(S.weightGoal)h+=`<div class="gi"><span class="gil">⚖️ Target weight</span><span class="giv">${S.weightGoal} kg</span></div>`;if(S.weight)h+=`<div class="gi"><span class="gil">📊 Current weight</span><span class="giv">${S.weight} kg</span></div>`;if(S.weight&&S.weightGoal){const d=(S.weight-S.weightGoal).toFixed(1);const a=Math.abs(d);if(a>.1)h+=`<div class="gi"><span class="gil">📉 To go</span><span class="giv">${d>0?'Lose':'Gain'} ${a} kg</span></div>`;else h+=`<div class="gi"><span class="gil">🎉 Status</span><span class="giv" style="color:var(--green)">Goal reached!</span></div>`;}h+='</div>';el.innerHTML=h;}
+function rBMI(){if(!S.weight||!S.height){document.getElementById('bmnone').style.display='';document.getElementById('bmdata').style.display='none';return;}document.getElementById('bmnone').style.display='none';document.getElementById('bmdata').style.display='';const bv=+(S.weight/((S.height/100)**2)).toFixed(1);document.getElementById('bnum').textContent=bv;const p=Math.min(97,Math.max(3,((bv-10)/35)*100));document.getElementById('bneedle').style.left=p+'%';let c,t,tip;if(bv<18.5){c='bu';t='Underweight';tip='Focus on calorie-dense meals: pounded yam + egusi, groundnut soup, beans porridge with palm oil.';}else if(bv<25){c='bn';t='Normal weight';tip='Great shape! Maintain with balanced Nigerian meals — fish, chicken, and plenty of vegetable soups.';}else if(bv<30){c='bo';t='Overweight';tip='Reduce swallow portions and palm oil. Increase fish, boiled chicken, efo riro, and try ofada rice.';}else{c='bb';t='Obese';tip='Please consult a healthcare provider. Cut sugary drinks, reduce eba/pounded yam, eat more vegetable soups.';}const b=document.getElementById('bbadge');b.textContent=t;b.className='bbadge '+c;document.getElementById('btip').textContent=tip;const ibw=Math.round((S.sex==='male'?50:45.5)+2.3*Math.max(0,(S.height/2.54)-60));document.getElementById('ibwv').textContent=ibw+' kg';}
+function rRing(){const tot=meals.reduce((s,m)=>s+m.cal,0);document.getElementById('rnum').textContent=tot.toLocaleString();document.getElementById('p1').textContent=tot.toLocaleString();const ring=document.getElementById('ring');if(S.calGoal){const p=Math.min(1.1,tot/S.calGoal);ring.style.strokeDashoffset=CIRC-p*CIRC;ring.classList.toggle('ov',tot>S.calGoal);const rem=S.calGoal-tot;document.getElementById('gd').textContent=S.calGoal.toLocaleString()+' kcal';document.getElementById('p2').textContent=S.calGoal.toLocaleString();document.getElementById('p3').textContent=rem>0?rem.toLocaleString():'0';const gp=Math.min(120,Math.round((tot/S.calGoal)*100));document.getElementById('pp').textContent=gp+'%';document.getElementById('pr').textContent=rem>0?rem+' kcal left':'⚠️ Over goal';const pf=document.getElementById('pf');pf.style.width=Math.min(100,gp)+'%';pf.classList.toggle('ov',tot>S.calGoal);}else{ring.style.strokeDashoffset=CIRC;document.getElementById('gd').textContent='Not set — tap Goals ↗';['p2','p3'].forEach(id=>document.getElementById(id).textContent='—');document.getElementById('pp').textContent='—';document.getElementById('pr').textContent='Set a calorie goal';document.getElementById('pf').style.width='0%';}}
+function rStats(){const tot=meals.reduce((s,m)=>s+m.cal,0);document.getElementById('s1').textContent=tot.toLocaleString();document.getElementById('s2').textContent=meals.length;const el=document.getElementById('s3');if(S.calGoal){const r=Math.max(0,S.calGoal-tot);el.textContent=r.toLocaleString();el.style.color=r===0?'var(--red)':'var(--green)';}else{el.textContent='—';el.style.color='var(--green)';}}
+const fi=document.getElementById('fi'),sd=document.getElementById('sdrop');
+fi.addEventListener('input',function(){const q=this.value.trim().toLowerCase();sf=null;if(!q){sd.classList.remove('o');return;}const m=DB.filter(f=>f.n.toLowerCase().includes(q)).slice(0,10);if(!m.length){sd.classList.remove('o');return;}const u=document.getElementById('unit').value;const a2=+document.getElementById('amt').value||1;sd.innerHTML=m.map(f=>{const c=Math.round((f[u.toLowerCase()]||f.cup)*a2);return`<div class="si2" data-n="${f.n}"><span>${f.e} ${f.n}</span><span class="sc2">~${c} kcal</span></div>`;}).join('');sd.classList.add('o');sd.querySelectorAll('.si2').forEach(el=>el.addEventListener('click',()=>{fi.value=el.dataset.n;sf=DB.find(f=>f.n===el.dataset.n);sd.classList.remove('o');}));});
+document.addEventListener('click',e=>{if(!e.target.closest('.sw'))sd.classList.remove('o');});
+function addM(){const name=fi.value.trim();if(!name){fi.focus();fi.style.borderColor='var(--green)';setTimeout(()=>fi.style.borderColor='',600);return;}const amt=+document.getElementById('amt').value||1;const unit=document.getElementById('unit').value;const time=document.getElementById('mt').value;const food=sf||DB.find(f=>f.n.toLowerCase()===name.toLowerCase());const bm={'cup':200,'wrap':180,'plate':400,'piece':150,'spoon (tbsp)':50,'gram (100g)':150,'pack':300,'bowl':300,'skewer':150,'slice':100};let cal;if(food){const k=unit.toLowerCase().replace('gram (100g)','gram');cal=Math.round((food[k]||food.cup)*amt);}else{cal=Math.round((bm[unit]||200)*amt);}meals.push({id:Date.now(),name:food?food.n:name,emoji:food?food.e:'🍽️',amt,unit,time,cal});fi.value='';sf=null;document.getElementById('amt').value='1';save();rAll();}
+function remM(id){meals=meals.filter(m=>m.id!==id);save();rAll();}
+function rAll(){rRing();rLog();rStats();rHist();}
+function rLog(){const el=document.getElementById('mlog');if(!meals.length){el.innerHTML='<div class="emp"><div class="bi">🫙</div><p>Your log is empty.<br>Search and add your first Nigerian meal above!</p></div>';return;}const ord=['Breakfast','Morning snack','Lunch','Afternoon snack','Dinner','Late night'];const bt={};meals.forEach(m=>{if(!bt[m.time])bt[m.time]=[];bt[m.time].push(m);});let h='';ord.forEach(t=>{if(!bt[t])return;const sub=bt[t].reduce((s,m)=>s+m.cal,0);h+=`<div class="tg"><div class="th"><div class="tdot"></div><span class="tn">${t}</span><span class="ts">${sub} kcal</span></div>`;bt[t].forEach(m=>{h+=`<div class="mi"><div class="mico">${m.emoji}</div><div class="min"><div class="mn">${m.name}</div><div class="mm">${m.amt} ${m.unit}</div></div><div class="mc">${m.cal} kcal</div><button class="xm" onclick="remM(${m.id})">✕</button></div>`;});h+='</div>';});el.innerHTML=h;}
+function rHist(){const tot=meals.reduce((s,m)=>s+m.cal,0);const days=['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];const ti=(()=>{const d=new Date().getDay();return d===0?6:d-1;})();let wk=[];try{const r=localStorage.getItem('nf_week');wk=r?JSON.parse(r):new Array(7).fill(0);if(!Array.isArray(wk)||wk.length!==7)wk=new Array(7).fill(0);}catch(e){wk=new Array(7).fill(0);}wk[ti]=tot;try{localStorage.setItem('nf_week',JSON.stringify(wk));}catch(e){}const dd=wk.map((v,i)=>i===ti?v:v>0?v:Math.round(900+Math.sin(i*1.5)*300+Math.cos(i*2.3)*200));const mx=Math.max(...dd,100);document.getElementById('hbs').innerHTML=days.map((_,i)=>{const p=Math.round((dd[i]/mx)*100);const it=i===ti;return`<div class="bw${it?' tw':''}"><div class="bv">${it&&tot>0?tot.toLocaleString():''}</div><div class="bi2${it?' tod':''}" style="height:${p}%"><div class="btt">${dd[i].toLocaleString()} kcal</div></div></div>`;}).join('');document.getElementById('hdr').innerHTML=days.map((d,i)=>`<span style="${i===ti?'color:var(--green);font-weight:700':''}">${d}</span>`).join('');}
+function rQT(){document.getElementById('qtags').innerHTML=QF.map(n=>{const f=DB.find(x=>x.n===n);return`<button class="qt2" onclick="qadd('${n}')">${f?f.e:'🍽️'} ${n.split(' ')[0]}</button>`;}).join('');}
+function qadd(n){fi.value=n;sf=DB.find(f=>f.n===n);sd.classList.remove('o');fi.scrollIntoView({behavior:'smooth',block:'center'});}
+(function boot(){const d=load();if(d&&d.S&&d.S.name){S={...S,...d.S};meals=d.meals||[];launch();}})();
+</script></body></html>
